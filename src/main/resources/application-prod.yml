@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/hotel?serverTimezone=UTC&useUnicode=true&characterEncoding=utf8
+      username: hotel
+      password: hotel
+
+  redis:
+    host: localhost
+    port: 6379
+    password: 010101
+    database: 1
+    timeout: 5000
+
+springfox:
+  documentation:
+    swagger-ui:
+      enabled: true
+      base-url: /doc
+
+app:
+  admin:
+    valid-time: 7200 # 2个小时未操作token失效
+  user:
+    valid-time: 86400 # token失效期1天
+
+file:
+  path: E:\\www\\pai-admin-java

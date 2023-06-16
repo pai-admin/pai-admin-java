@@ -1,0 +1,27 @@
+# 应用服务 WEB 访问端口
+server:
+  port: 8080
+
+spring:
+  application:
+    name: hotel
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 200MB
+      max-request-size: 200MB
+
+# 前缀
+mybatis-plus:
+  global-config:
+    db-config:
+      table-prefix: h_
+      id-type: auto
+      # 软删除配置
+      logic-delete-field: del_flag
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
