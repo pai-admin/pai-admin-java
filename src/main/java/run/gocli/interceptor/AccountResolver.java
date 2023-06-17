@@ -11,21 +11,21 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import run.gocli.core.server.RedisService;
-import run.gocli.utils.AccountId;
+import run.gocli.utils.AccountInfo;
 
-public class AccountIdResolver implements HandlerMethodArgumentResolver {
+public class AccountResolver implements HandlerMethodArgumentResolver {
     private final RedisService redisService;
 
     private final String tokenKey;
 
-    public AccountIdResolver(RedisService redisService, String tokenKey) {
+    public AccountResolver(RedisService redisService, String tokenKey) {
         this.redisService = redisService;
         this.tokenKey = tokenKey;
     }
 
     @Override
     public boolean supportsParameter(MethodParameter methodParameter) {
-        return methodParameter.hasParameterAnnotation(AccountId.class);
+        return methodParameter.hasParameterAnnotation(AccountInfo.class);
     }
 
     @Override
@@ -36,7 +36,6 @@ public class AccountIdResolver implements HandlerMethodArgumentResolver {
             throw new RuntimeException("未登录");
         }
         // 从redis中获取管理员id
-        String id = redisService.get(tokenKey+token);
-        return Integer.parseInt(id) ;
+        return redisService.getObject(tokenKey+token, run.gocli.core.entity.Account.class);
     }
 }

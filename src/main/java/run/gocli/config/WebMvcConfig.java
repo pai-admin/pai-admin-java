@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import run.gocli.component.AppComponent;
 import run.gocli.core.server.RedisService;
-import run.gocli.interceptor.AccountIdResolver;
+import run.gocli.interceptor.AccountResolver;
 import run.gocli.interceptor.CrossOriginInterceptor;
 import run.gocli.interceptor.JwtTokenInterceptor;
 
@@ -50,6 +50,6 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(new AccountIdResolver(redisService, appComponent.getTokenKey()));
+        resolvers.add(new AccountResolver(redisService, appComponent.getTokenKey()));
     }
 }

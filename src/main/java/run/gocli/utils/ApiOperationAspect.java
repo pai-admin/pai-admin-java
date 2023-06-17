@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import run.gocli.component.AppComponent;
+import run.gocli.core.entity.Account;
 import run.gocli.core.entity.AccountLog;
 import run.gocli.core.server.IAccountLogService;
 import run.gocli.core.server.RedisService;
@@ -51,16 +52,15 @@ public class ApiOperationAspect {
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         // 操作人
         String token = request.getHeader("authorization");
-        String id = redisService.get(appComponent.getTokenKey()+token);
+        Account account = redisService.getObject(appComponent.getTokenKey()+token, Account.class);
         // 记录日志
         AccountLog logData = new AccountLog();
-        logData.setAccountId(Integer.valueOf(id));
-        logData.setUsername("");
+        logData.setAccountId(account.getAccountId());
+        logData.setUsername(account.getUsername());
         logData.setTitle("");
         logData.setMethod(request.getMethod().toLowerCase(Locale.ROOT));
         logData.setFlag(auth.auth());
         logData.setIp(StrUtil.getIpAddress(request));
-
         try {
             R<Object> res = (R<Object>) result;
             // 状态
@@ -71,9 +71,7 @@ public class ApiOperationAspect {
         logData.setUa(request.getHeader("user-agent"));
         logData.setResponse(result.toString());
         logData.setRequest("");
-
         logData.setCreateTime(DateUtil.getCurrentDateTime(null,0));
-
         accountLogService.save(logData);
         return result;
     }

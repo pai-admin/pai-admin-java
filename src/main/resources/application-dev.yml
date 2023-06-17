@@ -1,10 +1,3 @@
-##热部署默认会重启
-#spring.devtools.restart.enabled=true
-#  #添加那个目录的文件需要restart
-#spring.devtools.restart.additional-paths=src/main/java
-#  #排除那个目录的文件不需要restart
-#spring.devtools.restart.exclude=static/**,public/**
-
 spring:
   devtools:
     restart:
@@ -34,7 +27,6 @@ springfox:
       base-url: /doc
 
 app:
-  secret: yr62SYDYruCLe8XtdXDwp52uvYkbvoFJ
   token_key: 'admin:token:'
   token_ttl: 3600
   verify_ttl: 300

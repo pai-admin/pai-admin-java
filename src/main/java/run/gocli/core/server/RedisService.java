@@ -143,7 +143,7 @@ public class RedisService {
      * @return java.lang.String
      * @date 2021/9/19
      **/
-    public <K> String get(K key) {
+    private <K> String get(K key) {
         String value;
         try {
             value = redisTemplate.opsForValue().get(DEFAULT_KEY_PREFIX + key);

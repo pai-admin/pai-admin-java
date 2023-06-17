@@ -5,12 +5,15 @@ import com.wf.captcha.base.Captcha;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import run.gocli.admin.req.LoginReq;
+import run.gocli.admin.vo.AccountVo;
 import run.gocli.admin.vo.CodeVo;
 import run.gocli.admin.vo.LoginVo;
 import run.gocli.component.AppComponent;
 import run.gocli.core.entity.Account;
+import run.gocli.core.server.IAccountLogService;
 import run.gocli.core.server.IAccountService;
 import run.gocli.core.server.RedisService;
+import run.gocli.utils.AccountInfo;
 import run.gocli.utils.AuthPermission;
 import run.gocli.utils.R;
 import io.swagger.annotations.Api;
@@ -18,6 +21,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import run.gocli.utils.StrUtil;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -32,6 +36,8 @@ public class LoginController {
     private AppComponent appComponent;
     @Autowired
     private IAccountService accountService;
+    @Autowired
+    private IAccountLogService accountLogService;
 
     @GetMapping("/get-code")
     @ApiOperation(value = "获取验证码")
@@ -54,19 +60,21 @@ public class LoginController {
     @PostMapping("/login")
     @ApiOperation(value = "登录")
     @AuthPermission(name = "登录", needLogin = false)
-    public R<LoginVo> login(@RequestBody LoginReq loginReq){
+    public R<LoginVo> login(HttpServletRequest request, @RequestBody LoginReq loginReq) {
         // 验证验证码
-        String code = redisService.get(appComponent.getTokenKey() + loginReq.getVerifyId());
-        // 验证成功删除验证码
-        redisService.delete(appComponent.getTokenKey() + loginReq.getVerifyId());
-        if (code.equals("")) {
+        String code = redisService.getObject(appComponent.getTokenKey() + loginReq.getVerifyId(), String.class);
+        if (code==null) {
             return R.error("验证码已过期");
         }
+        // 验证成功删除验证码
+        redisService.delete(appComponent.getTokenKey() + loginReq.getVerifyId());
+
         if (!code.equals(StrUtil.md5(loginReq.getVerifyCode()))) {
             return R.error("验证码不正确");
         }
+
         // 查询管理员信息
-        Account account = accountService.getByUsername(loginReq.getUsername());
+        run.gocli.core.entity.Account account = accountService.getByUsername(loginReq.getUsername());
         if (account == null) {
             return R.error("用户名或者密码错误");
         }
@@ -82,6 +90,19 @@ public class LoginController {
         redisService.add(appComponent.getTokenKey() + token, account, appComponent.getTokenTtl(), TimeUnit.SECONDS);
         LoginVo loginVo = new LoginVo();
         loginVo.setToken(token);
+        // 登录日志
+        accountLogService.writeLog(account, request, 200, "admin:login", "管理员登录");
         return R.success(loginVo);
+    }
+
+    @GetMapping("/info")
+    @ApiOperation(value = "账号信息")
+    @AuthPermission(name = "账号信息", needAuth = false)
+    public R<AccountVo> info(@AccountInfo Account account) {
+        AccountVo accountVo = new AccountVo();
+        accountVo.setAccountId(account.getAccountId());
+        accountVo.setUsername(account.getUsername());
+        accountVo.setAvatar(account.getAvatar());
+        return R.success(accountVo);
     }
 }
