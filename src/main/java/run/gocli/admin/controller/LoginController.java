@@ -3,7 +3,10 @@ package run.gocli.admin.controller;
 import com.wf.captcha.ArithmeticCaptcha;
 import com.wf.captcha.base.Captcha;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import run.gocli.admin.req.EditAccountReq;
+import run.gocli.admin.req.EditPwdReq;
 import run.gocli.admin.req.LoginReq;
 import run.gocli.admin.vo.AccountVo;
 import run.gocli.admin.vo.CodeVo;
@@ -105,4 +108,38 @@ public class LoginController {
         accountVo.setAvatar(account.getAvatar());
         return R.success(accountVo);
     }
+
+    @PostMapping("/info")
+    @ApiOperation(value = "保存账户信息接口", tags = "账户登录")
+    @AuthPermission(name = "保存账户信息", needAuth = false)
+    public R<String> saveInfo(@AccountInfo Account account, @Validated @RequestBody EditAccountReq request) {
+        Boolean res = accountService.saveInfo(account.getAccountId(), request);
+        return res ? R.success("修改成功") : R.error("修改失败");
+    }
+
+    @PostMapping("/logout")
+    @ApiOperation(value = "退出登录接口", tags = "账户登录")
+    @AuthPermission(name = "退出登录", needAuth = false)
+    public R<String> logout(HttpServletRequest request) {
+        redisService.delete(appComponent.getTokenKey() + request.getHeader("authorization"));
+        return R.success("退出成功");
+    }
+
+    @PostMapping("/editPwd")
+    @ApiOperation(value = "修改密码接口", tags = "账户登录")
+    @AuthPermission(name = "修改密码", needAuth = false)
+    public R<String> editPwd(@AccountInfo Account account, @Validated @RequestBody EditPwdReq request) {
+        if (Objects.equals(request.getNewPassword(), request.getOldPassword())) {
+            return R.error("新旧密码不能相同");
+        }
+        Boolean res = accountService.editPwd(account.getAccountId(), request);
+        return res ? R.success("修改成功") : R.error("修改失败，原密码不正确");
+    }
+
+//    @GetMapping("/menu")
+//    @ApiOperation(value = "获取菜单接口", tags = "账户登录")
+//    @AuthPermission(name = "获取菜单权限", needAuth = false)
+//    public R<AdminAuthVo> getMenu(@UserId Integer id) {
+//        return R.success(adminService.getMenuAndButtonByAdminId(id));
+//    }
 }

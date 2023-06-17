@@ -3,12 +3,16 @@ package run.gocli.core.server.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+import run.gocli.admin.req.EditAccountReq;
+import run.gocli.admin.req.EditPwdReq;
 import run.gocli.core.dao.AccountDao;
 import run.gocli.core.entity.Account;
 import run.gocli.core.server.IAccountService;
+import run.gocli.utils.DateUtil;
+import run.gocli.utils.StrUtil;
 
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
+
 
 @Service
 public class AccountServiceImpl extends ServiceImpl<AccountDao, Account> implements IAccountService {
@@ -17,5 +21,28 @@ public class AccountServiceImpl extends ServiceImpl<AccountDao, Account> impleme
         QueryWrapper<Account> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username", username);
         return getOne(queryWrapper);
+    }
+
+    @Override
+    public Boolean saveInfo(Integer accountId, EditAccountReq request) {
+        Account account = getById(accountId);
+        account.setUsername(request.getUsername());
+        account.setAvatar(request.getAvatar());
+        account.setUpdateTime(DateUtil.getCurrentDateTime(null, 0));
+        return updateById(account);
+    }
+
+    @Override
+    public Boolean editPwd(Integer accountId, EditPwdReq request) {
+        Account account = getById(accountId);
+        // 验证原密码是否正确
+        if (!Objects.equals(StrUtil.md5(request.getOldPassword()) + account.getSalt(), account.getPassword())) {
+            return false;
+        }
+        String salt = StrUtil.generateNonceStr(6);
+        account.setSalt(salt);
+        account.setPassword(StrUtil.md5(salt+request.getNewPassword()));
+        account.setUpdateTime(DateUtil.getCurrentDateTime(null, 0));
+        return updateById(account);
     }
 }
