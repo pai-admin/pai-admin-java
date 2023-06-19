@@ -2,11 +2,14 @@ package run.gocli.core.server.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import run.gocli.admin.req.EditAccountReq;
 import run.gocli.admin.req.EditPwdReq;
+import run.gocli.admin.vo.AuthVo;
 import run.gocli.core.dao.AccountDao;
 import run.gocli.core.entity.Account;
+import run.gocli.core.server.IAccountRoleService;
 import run.gocli.core.server.IAccountService;
 import run.gocli.utils.DateUtil;
 import run.gocli.utils.StrUtil;
@@ -16,6 +19,8 @@ import java.util.Objects;
 
 @Service
 public class AccountServiceImpl extends ServiceImpl<AccountDao, Account> implements IAccountService {
+    @Autowired
+    private IAccountRoleService accountRoleService;
     @Override
     public Account getByUsername(String username) {
         QueryWrapper<Account> queryWrapper = new QueryWrapper<>();
@@ -44,5 +49,13 @@ public class AccountServiceImpl extends ServiceImpl<AccountDao, Account> impleme
         account.setPassword(StrUtil.md5(salt+request.getNewPassword()));
         account.setUpdateTime(DateUtil.getCurrentDateTime(null, 0));
         return updateById(account);
+    }
+
+    @Override
+    public AuthVo getAuths(Integer accountId) {
+        AuthVo authVo = new AuthVo();
+        authVo.setButtons(accountRoleService.getButtons(accountId));
+        authVo.setRoles(accountRoleService.getRoles(accountId));
+        return null;
     }
 }

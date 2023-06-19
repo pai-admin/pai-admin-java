@@ -11,6 +11,7 @@ import run.gocli.admin.req.LoginReq;
 import run.gocli.admin.vo.AccountVo;
 import run.gocli.admin.vo.CodeVo;
 import run.gocli.admin.vo.LoginVo;
+import run.gocli.admin.vo.AuthVo;
 import run.gocli.component.AppComponent;
 import run.gocli.core.entity.Account;
 import run.gocli.core.server.IAccountLogService;
@@ -136,10 +137,10 @@ public class LoginController {
         return res ? R.success("修改成功") : R.error("修改失败，原密码不正确");
     }
 
-//    @GetMapping("/menu")
-//    @ApiOperation(value = "获取菜单接口", tags = "账户登录")
-//    @AuthPermission(name = "获取菜单权限", needAuth = false)
-//    public R<AdminAuthVo> getMenu(@UserId Integer id) {
-//        return R.success(adminService.getMenuAndButtonByAdminId(id));
-//    }
+    @GetMapping("/auth")
+    @ApiOperation(value = "菜单权限接口", tags = "账户登录")
+    @AuthPermission(name = "菜单权限接口", needAuth = false)
+    public R<AuthVo> getMenu(@AccountInfo Account account) {
+        return R.success(accountService.getAuths(account.getAccountId()));
+    }
 }
