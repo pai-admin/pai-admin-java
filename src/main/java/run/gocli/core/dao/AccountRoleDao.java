@@ -10,7 +10,7 @@ import java.util.List;
 
 @Mapper
 public interface AccountRoleDao extends BaseMapper<AccountRole> {
-    List<String> getButtons(@Param("accountId") int accountId);
-    List<String> getRoles(@Param("accountId") int accountId);
-    List<MenuVo> getMenus(Integer accountId);
+    List<String> getButtons(@Param("accountId") Integer accountId);
+    List<String> getRoles(@Param("accountId") Integer accountId);
+    List<MenuVo> getMenus(@Param("accountId") Integer accountId);
 }
