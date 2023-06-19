@@ -56,6 +56,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountDao, Account> impleme
         AuthVo authVo = new AuthVo();
         authVo.setButtons(accountRoleService.getButtons(accountId));
         authVo.setRoles(accountRoleService.getRoles(accountId));
-        return null;
+        authVo.setMenus(accountRoleService.getMenus(accountId));
+        return authVo;
     }
 }
