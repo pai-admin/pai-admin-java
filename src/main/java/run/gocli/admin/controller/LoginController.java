@@ -103,11 +103,7 @@ public class LoginController {
     @ApiOperation(value = "账号信息")
     @AuthPermission(name = "账号信息", needAuth = false)
     public R<AccountVo> info(@AccountInfo Account account) {
-        AccountVo accountVo = new AccountVo();
-        accountVo.setAccountId(account.getAccountId());
-        accountVo.setUsername(account.getUsername());
-        accountVo.setAvatar(account.getAvatar());
-        return R.success(accountVo);
+        return R.success(accountService.getInfo(account.getAccountId()));
     }
 
     @PostMapping("/info")

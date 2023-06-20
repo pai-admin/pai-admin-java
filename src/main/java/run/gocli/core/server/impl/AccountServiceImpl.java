@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import run.gocli.admin.req.EditAccountReq;
 import run.gocli.admin.req.EditPwdReq;
+import run.gocli.admin.vo.AccountVo;
 import run.gocli.admin.vo.AuthVo;
 import run.gocli.core.dao.AccountDao;
 import run.gocli.core.entity.Account;
@@ -58,5 +59,10 @@ public class AccountServiceImpl extends ServiceImpl<AccountDao, Account> impleme
         authVo.setRoles(accountRoleService.getRoles(accountId));
         authVo.setMenus(accountRoleService.getMenus(accountId));
         return authVo;
+    }
+
+    @Override
+    public AccountVo getInfo(Integer accountId) {
+        return this.baseMapper.getInfo(accountId);
     }
 }
