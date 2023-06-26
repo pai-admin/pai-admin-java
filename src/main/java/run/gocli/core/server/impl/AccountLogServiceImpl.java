@@ -25,7 +25,7 @@ public class AccountLogServiceImpl extends ServiceImpl<AccountLogDao, AccountLog
         logData.setIp(StrUtil.getIpAddress(request));
         logData.setCode(code);
         logData.setUa(request.getHeader("user-agent"));
-        logData.setCreateTime(DateUtil.getCurrentDateTime(null,0));
+        logData.setCreateTime(DateUtil.getCurrentDateTime());
         return save(logData);
     }
 }

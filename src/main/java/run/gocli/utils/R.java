@@ -26,10 +26,19 @@ public class R<T> {
     @ApiModelProperty(value = "数量")
     private Long count;
 
+    public R(Integer code, String message) {
+        this.code = code;
+        this.msg = message;
+    }
+
     public R(Integer code, String message, T data) {
         this.code = code;
         this.msg = message;
         this.data = data;
+    }
+
+    public static <E> R<E> success(){
+        return new R<E>(R.SUCCESS, R.SUCCESS_MSG);
     }
 
     // 成功返回
@@ -37,9 +46,13 @@ public class R<T> {
         return new R<E>(R.SUCCESS, R.SUCCESS_MSG, data);
     }
 
+    public static <E> R<E> success(E data, Long count){
+        return new R<E>(R.SUCCESS, R.SUCCESS_MSG, data, count);
+    }
+
     // 失败返回
     public static <E> R<E> error(String msg) {
-        return new R<E>(R.ERROR, msg, null);
+        return new R<E>(R.ERROR, msg);
     }
 
     public R<T> msg(String msg) {

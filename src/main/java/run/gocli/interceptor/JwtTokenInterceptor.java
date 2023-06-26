@@ -52,7 +52,7 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
             // 从redis中获取管理员信息
             Account account = redisService.getObject(appComponent.getTokenKey() + token, Account.class);
             // 登录失效 拦截
-            if (account.getAccountId() == null) {
+            if (account == null || account.getAccountId() == null) {
                 map.put("code", 401);
                 map.put("msg", "登录失效");
                 response(response, map);

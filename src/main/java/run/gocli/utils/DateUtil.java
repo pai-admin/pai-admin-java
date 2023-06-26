@@ -15,6 +15,27 @@ import java.util.Date;
 public class DateUtil {
     /**
      * 获取当前时间
+     */
+    public static String getCurrentDateTime() {
+        SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return sdf.format(new Date());
+    }
+
+    /**
+     * 获取当前时间
+     * @return String
+     */
+    public static String getCurrentDateTime(String pattern) {
+        // 设置默认格式
+        if (pattern == null) {
+            pattern = "yyyy-MM-dd HH:mm:ss";
+        }
+        SimpleDateFormat sdf= new SimpleDateFormat(pattern);
+        return sdf.format(new Date());
+    }
+
+    /**
+     * 获取当前时间
      * @return String
      */
     public static String getCurrentDateTime(String pattern, long time) {

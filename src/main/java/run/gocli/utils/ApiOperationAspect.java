@@ -5,7 +5,6 @@
  */
 package run.gocli.utils;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -77,7 +76,7 @@ public class ApiOperationAspect {
         logData.setUa(request.getHeader("user-agent"));
         logData.setResponse(JSONObject.toJSONString(result));
         logData.setRequest(getRequestParam(joinPoint));
-        logData.setCreateTime(DateUtil.getCurrentDateTime(null,0));
+        logData.setCreateTime(DateUtil.getCurrentDateTime());
         accountLogService.save(logData);
         return result;
     }
