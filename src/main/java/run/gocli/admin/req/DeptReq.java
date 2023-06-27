@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-public class RoleReq {
-    @ApiModelProperty("角色名称")
-    private String roleName;
+public class DeptReq {
+    @ApiModelProperty("部门名称")
+    private String deptName;
 }

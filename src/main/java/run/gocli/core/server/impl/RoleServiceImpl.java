@@ -17,6 +17,7 @@ import run.gocli.utils.DateUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class RoleServiceImpl extends ServiceImpl<RoleDao, Role> implements IRoleService {
@@ -26,17 +27,14 @@ public class RoleServiceImpl extends ServiceImpl<RoleDao, Role> implements IRole
     @Override
     public List<RoleListVo> getRoleList(RoleReq request) {
         QueryWrapper<Role> queryWrapper = new QueryWrapper<>();
-        if (request.getName() != null && !request.getName().equals("")) {
-            queryWrapper.like("name", request.getName());
+        if (request.getRoleName() != null && !request.getRoleName().equals("")) {
+            queryWrapper.like("role_name", request.getRoleName());
         }
         List<Role> roles = list(queryWrapper);
         List<RoleListVo> roleListVos = new ArrayList<>();
         roles.forEach(role -> {
             RoleListVo roleListVo = new RoleListVo();
             BeanUtils.copyProperties(role , roleListVo);
-            // 获取角色权限
-            roleListVo.setMenuVos(roleMenuService.getRoleMenu(role.getRoleId()));
-            roleListVo.setCheckedMenus(Arrays.stream(role.getCheckedMenus().split(",")).mapToInt(Integer::valueOf).toArray());
             roleListVos.add(roleListVo);
         });
         return roleListVos;

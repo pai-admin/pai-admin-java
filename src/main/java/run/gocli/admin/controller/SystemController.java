@@ -8,14 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import run.gocli.admin.req.*;
-import run.gocli.admin.vo.AccountListVo;
-import run.gocli.admin.vo.AddMenuVo;
-import run.gocli.admin.vo.MenuListVo;
-import run.gocli.admin.vo.RoleListVo;
-import run.gocli.core.server.IAccountRoleService;
-import run.gocli.core.server.IAccountService;
-import run.gocli.core.server.IMenuService;
-import run.gocli.core.server.IRoleService;
+import run.gocli.admin.vo.*;
+import run.gocli.core.server.*;
 import run.gocli.utils.AuthPermission;
 import run.gocli.utils.R;
 
@@ -34,6 +28,8 @@ public class SystemController {
     private IAccountService accountService;
     @Autowired
     private IAccountRoleService accountRoleService;
+    @Autowired
+    private IDeptServer deptServer;
 
     @GetMapping("/menu/list")
     @ApiOperation(value = "获取菜单列表接口", tags = "菜单管理")
@@ -131,6 +127,38 @@ public class SystemController {
     @AuthPermission(name = "删除管理员", auth = "admin:account:del")
     public R<Boolean> delAdmin(String ids) {
         Boolean res = accountService.delAccount(ids);
+        return res ? R.success(true).msg("删除成功") : R.error("删除失败");
+    }
+
+    @GetMapping("/dept/list")
+    @ApiOperation(value = "部门列表接口", tags = "部门管理")
+    @AuthPermission(name = "部门列表", auth = "admin:dept:list")
+    public R<List<DeptListVo>> deptList(DeptReq request) {
+        List<DeptListVo> deptListVos = deptServer.getDeptList(request);
+        return R.success(deptListVos).msg("部门列表");
+    }
+
+    @PostMapping("/dept/add")
+    @ApiOperation(value = "添加部门接口", tags = "部门管理")
+    @AuthPermission(name = "添加部门", auth = "admin:dept:add")
+    public R<Boolean> depteAdd(@Validated @RequestBody AddDeptReq request) {
+        Boolean res = deptServer.addDept(request);
+        return res ? R.success(true).msg("添加成功") : R.error("添加失败");
+    }
+
+    @PutMapping("/dept/edit")
+    @ApiOperation(value = "修改部门接口", tags = "部门管理")
+    @AuthPermission(name = "修改部门", auth = "admin:dept:edit")
+    public R<Boolean> deptEdit(@Validated @RequestBody AddDeptReq request) {
+        Boolean res = deptServer.editDept(request);
+        return res ? R.success(true).msg("修改成功") : R.error("修改失败");
+    }
+
+    @DeleteMapping("/dept/del")
+    @ApiOperation(value = "删除部门接口", tags = "部门管理")
+    @AuthPermission(name = "删除部门", auth = "admin:dept:del")
+    public R<Boolean> deptDel(String ids) {
+        Boolean res = deptServer.delDept(ids);
         return res ? R.success(true).msg("删除成功") : R.error("删除失败");
     }
 }

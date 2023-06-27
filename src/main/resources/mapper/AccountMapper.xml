@@ -20,8 +20,8 @@
         <if test="status != null">
             AND a.status = #{status}
         </if>
-        <if test="roleId != null">
-            AND ar.role_id = #{roleId}
+        <if test="deptId != null">
+            AND ar.deptId = #{deptId}
         </if>
         GROUP BY a.account_id
         ORDER BY a.account_id DESC

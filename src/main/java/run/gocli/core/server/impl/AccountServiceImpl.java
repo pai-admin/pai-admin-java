@@ -113,6 +113,6 @@ public class AccountServiceImpl extends ServiceImpl<AccountDao, Account> impleme
     @Override
     public IPage<AccountListVo> getAccountList(AccountReq request) {
         IPage<AccountListVo> page = new Page<>(request.getPage(), request.getLimit());
-        return this.baseMapper.getAccountList(page, request.getUsername(), request.getStatus(), request.getRoleId());
+        return this.baseMapper.getAccountList(page, request.getUsername(), request.getStatus(), request.getDeptId());
     }
 }

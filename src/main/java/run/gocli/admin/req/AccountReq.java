@@ -18,5 +18,5 @@ public class AccountReq {
     @ApiModelProperty("账户状态")
     private Integer status;
     @ApiModelProperty("角色ID")
-    private Integer roleId;
+    private Integer deptId;
 }

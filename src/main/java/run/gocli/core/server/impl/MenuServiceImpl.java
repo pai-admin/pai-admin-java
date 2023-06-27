@@ -22,7 +22,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuDao, Menu> implements IMenu
     public List<MenuListVo> getMenuList() {
         QueryWrapper<Menu> queryWrapper = new QueryWrapper<>();
         queryWrapper.orderByDesc("rank");
-        queryWrapper.orderByAsc("id");
+        queryWrapper.orderByAsc("menu_id");
         List<Menu> menus = list(queryWrapper);
         List<MenuListVo> menuListVos = new ArrayList<>();
         menus.forEach(menu -> {

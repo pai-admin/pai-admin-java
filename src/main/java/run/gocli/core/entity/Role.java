@@ -22,6 +22,8 @@ public class Role {
     private Integer roleId;
     @ApiModelProperty("角色名称")
     private String roleName;
+    @ApiModelProperty("角色标识")
+    private String flag;
     @ApiModelProperty("选中菜单")
     private String checkedMenus;
     @ApiModelProperty("状态")
@@ -29,7 +31,7 @@ public class Role {
     @ApiModelProperty("排序")
     private Integer rank;
     @ApiModelProperty("备注")
-    private Integer remark;
+    private String remark;
     @TableLogic
     @ApiModelProperty("删除标识")
     private Integer delFlag;

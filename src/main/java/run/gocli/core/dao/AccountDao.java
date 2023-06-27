@@ -11,5 +11,5 @@ import run.gocli.core.entity.Account;
 @Mapper
 public interface AccountDao extends BaseMapper<Account> {
     AccountVo getInfo(@Param("accountId") Integer accountId);
-    IPage<AccountListVo> getAccountList(IPage<AccountListVo> page, String username, Integer status, Integer roleId);
+    IPage<AccountListVo> getAccountList(IPage<AccountListVo> page, String username, Integer status, Integer deptId);
 }
