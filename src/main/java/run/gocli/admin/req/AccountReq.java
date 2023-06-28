@@ -15,8 +15,6 @@ public class AccountReq {
     private Integer limit;
     @ApiModelProperty(value = "登录账户")
     private String username;
-    @ApiModelProperty("账户状态")
-    private Integer status;
     @ApiModelProperty("角色ID")
     private Integer deptId;
 }

@@ -40,6 +40,7 @@ public class AccountRoleServiceImpl extends ServiceImpl<AccountRoleDao, AccountR
         // 重新添加数据
         List<AccountRole> adminRoles = new ArrayList<>();
         for (Integer roleId: roles) {
+            System.out.println(roleId);
             // 组合数据
             AccountRole accountRole = new AccountRole();
             accountRole.setRoleId(roleId);

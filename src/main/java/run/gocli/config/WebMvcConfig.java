@@ -13,6 +13,7 @@ import run.gocli.interceptor.CrossOriginInterceptor;
 import run.gocli.interceptor.JwtTokenInterceptor;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.util.List;
 
 @Configuration
@@ -45,7 +46,8 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
                 "classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations(
                 "classpath:/META-INF/resources/webjars/");
-        registry.addResourceHandler("/upload/**").addResourceLocations("file:" + appComponent.getPath());
+        System.out.println(appComponent.getPath());
+        registry.addResourceHandler("/upload/**").addResourceLocations("file:" + appComponent.getPath() + "upload" + File.separator);
     }
 
     @Override

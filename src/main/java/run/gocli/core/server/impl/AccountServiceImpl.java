@@ -29,6 +29,7 @@ import java.util.Objects;
 public class AccountServiceImpl extends ServiceImpl<AccountDao, Account> implements IAccountService {
     @Autowired
     private IAccountRoleService accountRoleService;
+
     @Override
     public Account getByUsername(String username) {
         QueryWrapper<Account> queryWrapper = new QueryWrapper<>();
@@ -54,7 +55,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountDao, Account> impleme
         }
         String salt = StrUtil.generateNonceStr(6);
         account.setSalt(salt);
-        account.setPassword(StrUtil.md5(salt+request.getNewPassword()));
+        account.setPassword(StrUtil.md5(salt + request.getNewPassword()));
         account.setUpdateTime(DateUtil.getCurrentDateTime());
         return updateById(account);
     }
@@ -85,7 +86,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountDao, Account> impleme
         if (request.getPassword() != null) {
             String salt = StrUtil.generateNonceStr(6);
             account.setSalt(salt);
-            account.setPassword(StrUtil.md5(salt+account.getPassword()));
+            account.setPassword(StrUtil.md5(account.getPassword() + salt));
         }
         account.setUpdateTime(DateUtil.getCurrentDateTime());
         boolean res = updateById(account);
@@ -101,7 +102,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountDao, Account> impleme
         BeanUtils.copyProperties(request, account);
         String salt = StrUtil.generateNonceStr(6);
         account.setSalt(salt);
-        account.setPassword(StrUtil.md5(salt+account.getPassword()));
+        account.setPassword(StrUtil.md5(account.getPassword() + salt));
         account.setCreateTime(DateUtil.getCurrentDateTime());
         boolean res = save(account);
         if (!res) {
@@ -113,6 +114,6 @@ public class AccountServiceImpl extends ServiceImpl<AccountDao, Account> impleme
     @Override
     public IPage<AccountListVo> getAccountList(AccountReq request) {
         IPage<AccountListVo> page = new Page<>(request.getPage(), request.getLimit());
-        return this.baseMapper.getAccountList(page, request.getUsername(), request.getStatus(), request.getDeptId());
+        return this.baseMapper.getAccountList(page, request.getUsername(), request.getDeptId());
     }
 }

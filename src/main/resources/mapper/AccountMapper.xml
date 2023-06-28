@@ -10,18 +10,15 @@
     </select>
 
     <select id="getAccountList" resultType="run.gocli.admin.vo.AccountListVo">
-        SELECT a.account_id, a.username, a.avatar, a.create_time, a.status, a.update_time, d.dept_name FROM lea_account a
+        SELECT a.account_id, a.username, a.avatar, a.create_time, a.status, a.update_time, d.dept_name, a.dept_id FROM lea_account a
         LEFT JOIN lea_account_role ar on ar.account_id = a.account_id
         LEFT JOIN lea_dept d on d.dept_id = a.dept_id
         WHERE a.del_flag = 0
         <if test="username != null and username != ''">
             AND a.username LIKE CONCAT("%",#{username},"%")
         </if>
-        <if test="status != null">
-            AND a.status = #{status}
-        </if>
         <if test="deptId != null">
-            AND ar.deptId = #{deptId}
+            AND a.dept_id = #{deptId}
         </if>
         GROUP BY a.account_id
         ORDER BY a.account_id DESC

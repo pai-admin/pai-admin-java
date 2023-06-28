@@ -8,7 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-@TableName(value = "lea_account_log")
+@TableName(value = "lea_account_role")
 @ApiModel(value = "账号角色", description = "账号角色表")
 public class AccountRole {
     @TableId(type = IdType.INPUT)

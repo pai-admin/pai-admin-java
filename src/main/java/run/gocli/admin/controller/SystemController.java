@@ -7,13 +7,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import run.gocli.admin.req.*;
 import run.gocli.admin.vo.*;
+import run.gocli.component.AppComponent;
 import run.gocli.core.server.*;
 import run.gocli.utils.AuthPermission;
 import run.gocli.utils.R;
+import run.gocli.utils.StrUtil;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Api(tags = "管理端接口")
 @RestController
@@ -30,6 +38,12 @@ public class SystemController {
     private IAccountRoleService accountRoleService;
     @Autowired
     private IDeptServer deptServer;
+    @Autowired
+    private AppComponent appComponent;
+    @Autowired
+    private IDictTypeService dictTypeService;
+    @Autowired
+    private IDictDataService dictDataService;
 
     @GetMapping("/menu/list")
     @ApiOperation(value = "获取菜单列表接口", tags = "菜单管理")
@@ -100,8 +114,8 @@ public class SystemController {
     @AuthPermission(name = "管理员列表", auth = "admin:account:list")
     public R<List<AccountListVo>> adminList(AccountReq request) {
         IPage<AccountListVo> adminIPage = accountService.getAccountList(request);
-        for (AccountListVo adminListVo: adminIPage.getRecords()) {
-            adminListVo.setRoleLists(accountRoleService.getAccountRole(adminListVo.getAccountId()));
+        for (AccountListVo adminListVo : adminIPage.getRecords()) {
+            adminListVo.setRoles(accountRoleService.getAccountRole(adminListVo.getAccountId()));
         }
         return R.success(adminIPage.getRecords()).count(adminIPage.getTotal());
     }
@@ -159,6 +173,146 @@ public class SystemController {
     @AuthPermission(name = "删除部门", auth = "admin:dept:del")
     public R<Boolean> deptDel(String ids) {
         Boolean res = deptServer.delDept(ids);
+        return res ? R.success(true).msg("删除成功") : R.error("删除失败");
+    }
+
+    @PutMapping(value = "/upload/file")
+    @ApiOperation(value = "文件上传", tags = "公共接口")
+    @AuthPermission(name = "文件上传", needAuth = false)
+    public R<UploadFileVo> upload(@RequestParam("file") MultipartFile multipartFile) {
+        if (multipartFile.isEmpty() || Objects.equals(multipartFile.getOriginalFilename(), "")) {
+            return R.error("文件内容为空");
+        }
+        // 文件上传路径
+        String filePath = "upload" + File.separator + (new SimpleDateFormat("yyyy")).format(new Date()) + File.separator + (new SimpleDateFormat("MM")).format(new Date()) + File.separator + (new SimpleDateFormat("dd")).format(new Date());
+        // 获取文件后缀
+        String ext = multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().lastIndexOf("."));
+        // 文件名
+        String fileName = StrUtil.getUuid() + ext;
+        // 保存文件
+        if (!saveImg(multipartFile, filePath, fileName)) {
+            return R.error("上传失败, 请重试");
+        }
+        // 上传文件返回
+        UploadFileVo uploadFileVo = new UploadFileVo();
+        uploadFileVo.setName(fileName);
+        uploadFileVo.setPath(filePath + File.separator + fileName);
+        uploadFileVo.setSize(multipartFile.getSize());
+        return R.success(uploadFileVo).msg("上传成功");
+    }
+
+    // 保存图片
+    private Boolean saveImg(MultipartFile multipartFile, String path, String fileName) {
+        try {
+            File file = new File(appComponent.getPath() + path);
+            // 文件不存在创建
+            if (!file.exists() && !file.isDirectory()) {
+                file.mkdirs();
+            }
+            FileInputStream fileInputStream = (FileInputStream) multipartFile.getInputStream();
+            // 保存文件 路径 + 文件名
+            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file + File.separator + fileName));
+            byte[] bs = new byte[1024];
+            int len;
+            while ((len = fileInputStream.read(bs)) != -1) {
+                bos.write(bs, 0, len);
+            }
+            bos.flush();
+            bos.close();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @GetMapping("/download/{file}")
+    @ApiOperation(value = "文件下载", tags = "公共接口")
+    @AuthPermission(name = "文件下载", needAuth = false)
+    public String download(@PathVariable("file") String fileName, HttpServletResponse response) throws IOException {
+        if (fileName == null) return null;
+        //设置文件路径
+        File file = new File(appComponent.getPath() + fileName);
+        if (file.exists()) {
+            response.setContentType("application/force-download");
+            response.addHeader("Content-Disposition", "attachment;fileName="
+                    + fileName);
+            byte[] buffer = new byte[1024];
+            try (FileInputStream fis = new FileInputStream(file); BufferedInputStream bis = new BufferedInputStream(fis)) {
+                OutputStream os = response.getOutputStream();
+                int i = bis.read(buffer);
+                while (i != -1) {
+                    os.write(buffer, 0, i);
+                    i = bis.read(buffer);
+                }
+                return "";
+            } catch (Exception e) {
+                log.error("下载文件失败：" + e.getMessage());
+            }
+        }
+        return "fail";
+    }
+
+    @GetMapping("/dict_type/list")
+    @ApiOperation(value = "字典列表接口", tags = "字典管理")
+    @AuthPermission(name = "字典列表", auth = "admin:dict_type:list")
+    public R<List<DictTypeListVo>> dictTypeList() {
+        List<DictTypeListVo> dictTypeListVos = dictTypeService.getDictType();
+        return R.success(dictTypeListVos).msg("字典列表");
+    }
+
+    @PostMapping("/dict_type/add")
+    @ApiOperation(value = "添加字典接口", tags = "字典管理")
+    @AuthPermission(name = "添加字典", auth = "admin:dict_type:add")
+    public R<Boolean> dictTypeAdd(@Validated @RequestBody AddDictTypeReq request) {
+        Boolean res = dictTypeService.addDictType(request);
+        return res ? R.success(true).msg("添加成功") : R.error("添加失败");
+    }
+
+    @PutMapping("/dict_type/edit")
+    @ApiOperation(value = "修改字典接口", tags = "字典管理")
+    @AuthPermission(name = "修改字典", auth = "admin:dict_type:edit")
+    public R<Boolean> dictTypeEdit(@Validated @RequestBody AddDictTypeReq request) {
+        Boolean res = dictTypeService.editDictType(request);
+        return res ? R.success(true).msg("修改成功") : R.error("修改失败");
+    }
+
+    @DeleteMapping("/dict_type/del")
+    @ApiOperation(value = "删除字典接口", tags = "字典管理")
+    @AuthPermission(name = "删除字典", auth = "admin:dict_type:del")
+    public R<Boolean> dictTypeDel(String ids) {
+        Boolean res = dictTypeService.delDictType(ids);
+        return res ? R.success(true).msg("删除成功") : R.error("删除失败");
+    }
+
+    @GetMapping("/dict_data/list")
+    @ApiOperation(value = "字典项目接口", tags = "字典管理")
+    @AuthPermission(name = "字典列表", auth = "admin:dict_data:list")
+    public R<List<DictDataListVo>> dictDataList(DictDataReq request) {
+        List<DictDataListVo> dictDataListVos = dictDataService.getDictType(request);
+        return R.success(dictDataListVos).msg("项目列表");
+    }
+
+    @PostMapping("/dict_data/add")
+    @ApiOperation(value = "添加字典项目接口", tags = "字典管理")
+    @AuthPermission(name = "添加字典", auth = "admin:dict_data:add")
+    public R<Boolean> dictDataAdd(@Validated @RequestBody AddDictDataReq request) {
+        Boolean res = dictDataService.addDictType(request);
+        return res ? R.success(true).msg("添加成功") : R.error("添加失败");
+    }
+
+    @PutMapping("/dict_data/edit")
+    @ApiOperation(value = "修改字典项目接口", tags = "字典管理")
+    @AuthPermission(name = "修改字典", auth = "admin:dict_data:edit")
+    public R<Boolean> dictDataEdit(@Validated @RequestBody AddDictDataReq request) {
+        Boolean res = dictDataService.editDictType(request);
+        return res ? R.success(true).msg("修改成功") : R.error("修改失败");
+    }
+
+    @DeleteMapping("/dict_data/del")
+    @ApiOperation(value = "删除字典项目接口", tags = "字典管理")
+    @AuthPermission(name = "删除字典", auth = "admin:dict_data:del")
+    public R<Boolean> dictDataDel(String ids) {
+        Boolean res = dictDataService.delDictType(ids);
         return res ? R.success(true).msg("删除成功") : R.error("删除失败");
     }
 }
