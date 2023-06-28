@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import run.gocli.admin.req.*;
 import run.gocli.admin.vo.*;
 import run.gocli.component.AppComponent;
+import run.gocli.core.entity.DictData;
 import run.gocli.core.server.*;
 import run.gocli.utils.AuthPermission;
 import run.gocli.utils.R;
@@ -19,6 +21,7 @@ import run.gocli.utils.StrUtil;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -263,9 +266,9 @@ public class SystemController {
     @PostMapping("/dict_type/add")
     @ApiOperation(value = "添加字典接口", tags = "字典管理")
     @AuthPermission(name = "添加字典", auth = "admin:dict_type:add")
-    public R<Boolean> dictTypeAdd(@Validated @RequestBody AddDictTypeReq request) {
-        Boolean res = dictTypeService.addDictType(request);
-        return res ? R.success(true).msg("添加成功") : R.error("添加失败");
+    public R<AddDictTypeVo> dictTypeAdd(@Validated @RequestBody AddDictTypeReq request) {
+        AddDictTypeVo addDictType = dictTypeService.addDictType(request);
+        return addDictType != null ? R.success(addDictType).msg("添加成功") : R.error("添加失败");
     }
 
     @PutMapping("/dict_type/edit")
@@ -288,8 +291,14 @@ public class SystemController {
     @ApiOperation(value = "字典项目接口", tags = "字典管理")
     @AuthPermission(name = "字典列表", auth = "admin:dict_data:list")
     public R<List<DictDataListVo>> dictDataList(DictDataReq request) {
-        List<DictDataListVo> dictDataListVos = dictDataService.getDictType(request);
-        return R.success(dictDataListVos).msg("项目列表");
+        IPage<DictData> dataIPage = dictDataService.getDictType(request);
+        List<DictDataListVo> dictTypeListVos = new ArrayList<>();
+        dataIPage.getRecords().forEach(dictData -> {
+            DictDataListVo deptListVo = new DictDataListVo();
+            BeanUtils.copyProperties(dictData , deptListVo);
+            dictTypeListVos.add(deptListVo);
+        });
+        return R.success(dictTypeListVos).count(dataIPage.getTotal());
     }
 
     @PostMapping("/dict_data/add")
