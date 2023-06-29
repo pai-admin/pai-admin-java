@@ -40,7 +40,6 @@ public class AccountServiceImpl extends ServiceImpl<AccountDao, Account> impleme
     @Override
     public Boolean saveInfo(Integer accountId, EditAccountReq request) {
         Account account = getById(accountId);
-        account.setUsername(request.getUsername());
         account.setAvatar(request.getAvatar());
         account.setUpdateTime(DateUtil.getCurrentDateTime());
         return updateById(account);
