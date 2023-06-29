@@ -1,19 +1,17 @@
 package run.gocli.admin.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.wf.captcha.ArithmeticCaptcha;
 import com.wf.captcha.base.Captcha;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import run.gocli.admin.req.EditAccountReq;
-import run.gocli.admin.req.EditPwdReq;
-import run.gocli.admin.req.LoginReq;
-import run.gocli.admin.vo.AccountVo;
-import run.gocli.admin.vo.CodeVo;
-import run.gocli.admin.vo.LoginVo;
-import run.gocli.admin.vo.AuthVo;
+import run.gocli.admin.req.*;
+import run.gocli.admin.vo.*;
 import run.gocli.component.AppComponent;
 import run.gocli.core.entity.Account;
+import run.gocli.core.entity.AccountLog;
 import run.gocli.core.server.IAccountLogService;
 import run.gocli.core.server.IAccountService;
 import run.gocli.core.server.RedisService;
@@ -26,6 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import run.gocli.utils.StrUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -106,14 +106,6 @@ public class LoginController {
         return R.success(accountService.getInfo(account.getAccountId()));
     }
 
-    @PostMapping("/info")
-    @ApiOperation(value = "保存账户信息接口", tags = "账户登录")
-    @AuthPermission(name = "保存账户信息", needAuth = false)
-    public R<String> saveInfo(@AccountInfo Account account, @Validated @RequestBody EditAccountReq request) {
-        Boolean res = accountService.saveInfo(account.getAccountId(), request);
-        return res ? R.success("修改成功") : R.error("修改失败");
-    }
-
     @PostMapping("/logout")
     @ApiOperation(value = "退出登录接口", tags = "账户登录")
     @AuthPermission(name = "退出登录", needAuth = false)
@@ -138,5 +130,49 @@ public class LoginController {
     @AuthPermission(name = "菜单权限接口", needAuth = false)
     public R<AuthVo> getMenu(@AccountInfo Account account) {
         return R.success(accountService.getAuths(account.getAccountId()));
+    }
+
+    @PostMapping("/info/edit")
+    @ApiOperation(value = "保存账户信息接口", tags = "账户登录")
+    @AuthPermission(name = "保存账户信息", needAuth = false)
+    public R<String> saveInfo(@AccountInfo Account account, @Validated @RequestBody EditAccountReq request) {
+        Boolean res = accountService.saveInfo(account.getAccountId(), request);
+        return res ? R.success("修改成功") : R.error("修改失败");
+    }
+
+    @GetMapping("/log/my")
+    @ApiOperation(value = "查看个人日志", tags = "账户登录")
+    @AuthPermission(name = "查看个人日志", needAuth = false)
+    public R<List<MyLogVo>> getLog(@AccountInfo Account account, @Validated MyLogReq request) {
+        IPage<AccountLog> logIPage = accountLogService.getLog(account.getAccountId(), request);
+        List<MyLogVo> myLogVos = new ArrayList<>();
+        logIPage.getRecords().forEach(log -> {
+            MyLogVo myLogVo = new MyLogVo();
+            BeanUtils.copyProperties(log , myLogVo);
+            myLogVos.add(myLogVo);
+        });
+        return R.success(myLogVos).count(logIPage.getTotal());
+    }
+
+    @GetMapping("/log/list")
+    @ApiOperation(value = "查看日志", tags = "账户登录")
+    @AuthPermission(name = "查看日志", auth = "admin:log:list")
+    public R<List<LogVo>> getLog(@Validated LogReq request) {
+        IPage<AccountLog> logIPage = accountLogService.getLog(request);
+        List<LogVo> logVos = new ArrayList<>();
+        logIPage.getRecords().forEach(log -> {
+            LogVo deptListVo = new LogVo();
+            BeanUtils.copyProperties(log , deptListVo);
+            logVos.add(deptListVo);
+        });
+        return R.success(logVos).count(logIPage.getTotal());
+    }
+
+    @DeleteMapping("/log/del")
+    @ApiOperation(value = "删除日志", tags = "账户登录")
+    @AuthPermission(name = "删除日志", auth = "admin:log:del")
+    public R<Boolean> getLog(String ids) {
+        boolean res = accountLogService.delLog(ids);
+        return res ? R.success(true).msg("删除成功") : R.error("删除失败");
     }
 }

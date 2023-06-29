@@ -50,12 +50,12 @@ public class AccountServiceImpl extends ServiceImpl<AccountDao, Account> impleme
     public Boolean editPwd(Integer accountId, EditPwdReq request) {
         Account account = getById(accountId);
         // 验证原密码是否正确
-        if (!Objects.equals(StrUtil.md5(request.getOldPassword()) + account.getSalt(), account.getPassword())) {
+        if (!Objects.equals(StrUtil.md5(request.getOldPassword() + account.getSalt()), account.getPassword())) {
             return false;
         }
         String salt = StrUtil.generateNonceStr(6);
         account.setSalt(salt);
-        account.setPassword(StrUtil.md5(salt + request.getNewPassword()));
+        account.setPassword(StrUtil.md5(request.getNewPassword() + salt));
         account.setUpdateTime(DateUtil.getCurrentDateTime());
         return updateById(account);
     }
