@@ -125,7 +125,7 @@ public class SystemController {
 
     @PostMapping("/account/add")
     @ApiOperation(value = "添加管理员", tags = "管理员管理")
-    @AuthPermission(name = "添加管理员", auth = "admin:admin:add")
+    @AuthPermission(name = "添加管理员", auth = "admin:account:add")
     public R<Boolean> addAdmin(@Validated @RequestBody AddAccountReq request) {
         Boolean res = accountService.addAccount(request);
         return res ? R.success(true).msg("添加成功") : R.error("添加失败");

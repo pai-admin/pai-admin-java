@@ -8,8 +8,11 @@ import run.gocli.admin.vo.AccountListVo;
 import run.gocli.admin.vo.AccountVo;
 import run.gocli.core.entity.Account;
 
+import java.util.List;
+
 @Mapper
 public interface AccountDao extends BaseMapper<Account> {
     AccountVo getInfo(@Param("accountId") Integer accountId);
     IPage<AccountListVo> getAccountList(IPage<AccountListVo> page, @Param("username") String username, @Param("deptId") Integer deptId);
+    List<String> getApis(@Param("accountId") Integer accountId);
 }

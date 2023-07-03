@@ -11,6 +11,8 @@ import run.gocli.admin.vo.AccountVo;
 import run.gocli.admin.vo.AuthVo;
 import run.gocli.core.entity.Account;
 
+import java.util.List;
+
 public interface IAccountService extends IService<Account> {
     Account getByUsername(String username);
     Boolean saveInfo(Integer accountId, EditAccountReq request);
@@ -22,4 +24,5 @@ public interface IAccountService extends IService<Account> {
     Boolean editAccount(AddAccountReq request);
     Boolean addAccount(AddAccountReq request);
     IPage<AccountListVo> getAccountList(AccountReq request);
+    List<String> getApis(Integer accountId);
 }

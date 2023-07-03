@@ -96,6 +96,9 @@ public class LoginController {
         loginVo.setToken(token);
         // 登录日志
         accountLogService.writeLog(account, request, 200, "admin:login", "管理员登录");
+        // 接口权限存储到redis中，以便鉴权
+        List<String> apis = accountService.getApis(account.getAccountId());
+        redisService.add(appComponent.getTokenKey() + "AUTH:" + account.getAccountId(), apis, appComponent.getTokenTtl(), TimeUnit.SECONDS);
         return R.success(loginVo);
     }
 

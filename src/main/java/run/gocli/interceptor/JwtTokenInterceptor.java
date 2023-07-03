@@ -29,9 +29,9 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        Map<String, Object> map = new HashMap<>();
         try {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
-            Map<String, Object> map = new HashMap<>();
             AuthPermission anno = handlerMethod.getMethodAnnotation(AuthPermission.class);
             // 没有注解直接放行
             if (anno == null) {
@@ -66,18 +66,20 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
             }
             // 日志
             String tag = request.getMethod().toLowerCase(Locale.ROOT) + ":" + anno.auth();
-            List<String> auth = redisService.getList(appComponent.getTokenKey() + token, String.class);
+            List<String> auth = redisService.getList(appComponent.getTokenKey() + "AUTH:" + account.getAccountId(), String.class);
             if (auth.contains(tag)) {
                 return true;
             }
-
             // 权限不足
             map.put("code", 403);
-            map.put("msg", "权限不足");
+            map.put("msg", "权限不足-1");
             response(response, map);
             return false;
         } catch (Exception e) {
-            return true;
+            map.put("code", 403);
+            map.put("msg", "权限不足-2");
+            response(response, map);
+            return false;
         }
     }
 

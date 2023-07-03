@@ -2,14 +2,14 @@ spring:
   datasource:
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://localhost:3306/hotel?serverTimezone=UTC&useUnicode=true&characterEncoding=utf8
-      username: hotel
-      password: hotel
+      url: jdbc:mysql://localhost:3306/pai_admin_go?serverTimezone=UTC&useUnicode=true&characterEncoding=utf8
+      username: pai_admin_go
+      password: p4BjSFmwnaZGZifY
 
   redis:
     host: localhost
     port: 6379
-    password: 010101
+    password: 123456
     database: 1
     timeout: 5000
 
@@ -24,4 +24,4 @@ app:
   token_ttl: 3600
   verify_ttl: 300
   # 根目录
-  path: E:\\www\\pai-admin-java\\
+  path: /www/wwwroot/pai-admin-java/

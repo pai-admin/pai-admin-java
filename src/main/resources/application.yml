@@ -6,7 +6,7 @@ spring:
   application:
     name: pai-admin
   profiles:
-    active: dev
+    active: prod
   servlet:
     multipart:
       enabled: true

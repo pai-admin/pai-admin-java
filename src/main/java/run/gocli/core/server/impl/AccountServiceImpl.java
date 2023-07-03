@@ -22,6 +22,7 @@ import run.gocli.utils.DateUtil;
 import run.gocli.utils.StrUtil;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -114,5 +115,10 @@ public class AccountServiceImpl extends ServiceImpl<AccountDao, Account> impleme
     public IPage<AccountListVo> getAccountList(AccountReq request) {
         IPage<AccountListVo> page = new Page<>(request.getPage(), request.getLimit());
         return this.baseMapper.getAccountList(page, request.getUsername(), request.getDeptId());
+    }
+
+    @Override
+    public List<String> getApis(Integer accountId) {
+        return this.baseMapper.getApis(accountId);
     }
 }

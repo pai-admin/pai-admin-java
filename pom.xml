@@ -155,7 +155,6 @@
                 <version>${spring-boot.version}</version>
                 <configuration>
                     <mainClass>run.gocli.PaiAdminApplication</mainClass>
-                    <skip>true</skip>
                 </configuration>
                 <executions>
                     <execution>
