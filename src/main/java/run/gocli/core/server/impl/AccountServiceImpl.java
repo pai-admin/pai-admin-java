@@ -1,5 +1,6 @@
 package run.gocli.core.server.impl;
 
+import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -83,10 +84,12 @@ public class AccountServiceImpl extends ServiceImpl<AccountDao, Account> impleme
     public Boolean editAccount(AddAccountReq request) {
         Account account = new Account();
         BeanUtils.copyProperties(request, account);
-        if (request.getPassword() != null) {
+        if (!StringUtils.isEmpty(request.getPassword())) {
             String salt = StrUtil.generateNonceStr(6);
             account.setSalt(salt);
             account.setPassword(StrUtil.md5(account.getPassword() + salt));
+        }else {
+            account.setPassword(null);
         }
         account.setUpdateTime(DateUtil.getCurrentDateTime());
         boolean res = updateById(account);
