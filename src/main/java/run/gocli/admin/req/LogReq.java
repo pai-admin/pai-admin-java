@@ -17,6 +17,6 @@ public class LogReq {
     private String startTime;
     @ApiModelProperty("结束时间")
     private String endTime;
-    @ApiModelProperty("结束时间")
+    @ApiModelProperty("操作名称")
     private String title;
 }

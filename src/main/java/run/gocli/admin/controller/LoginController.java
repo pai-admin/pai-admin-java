@@ -98,7 +98,7 @@ public class LoginController {
         accountLogService.writeLog(account, request, 200, "admin:login", "管理员登录");
         // 接口权限存储到redis中，以便鉴权
         List<String> apis = accountService.getApis(account.getAccountId());
-        redisService.add(appComponent.getTokenKey() + "AUTH:" + account.getAccountId(), apis, appComponent.getTokenTtl(), TimeUnit.SECONDS);
+        redisService.add(appComponent.getTokenKey() + "AUTH:" + account.getAccountId(), apis);
         return R.success(loginVo);
     }
 
@@ -146,7 +146,7 @@ public class LoginController {
     @GetMapping("/log/my")
     @ApiOperation(value = "查看个人日志", tags = "账户登录")
     @AuthPermission(name = "查看个人日志", needAuth = false)
-    public R<List<MyLogVo>> getLog(@AccountInfo Account account, @Validated MyLogReq request) {
+    public R<List<MyLogVo>> myLog(@AccountInfo Account account, @Validated MyLogReq request) {
         IPage<AccountLog> logIPage = accountLogService.getLog(account.getAccountId(), request);
         List<MyLogVo> myLogVos = new ArrayList<>();
         logIPage.getRecords().forEach(log -> {
@@ -174,7 +174,7 @@ public class LoginController {
     @DeleteMapping("/log/del")
     @ApiOperation(value = "删除日志", tags = "账户登录")
     @AuthPermission(name = "删除日志", auth = "admin:log:del")
-    public R<Boolean> getLog(String ids) {
+    public R<Boolean> delLog(String ids) {
         boolean res = accountLogService.delLog(ids);
         return res ? R.success(true).msg("删除成功") : R.error("删除失败");
     }
