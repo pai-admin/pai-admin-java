@@ -179,7 +179,7 @@ public class SystemController {
         return res ? R.success(true).msg("删除成功") : R.error("删除失败");
     }
 
-    @PutMapping(value = "/upload/file")
+    @PostMapping(value = "/upload/file")
     @ApiOperation(value = "文件上传", tags = "公共接口")
     @AuthPermission(name = "文件上传", needAuth = false)
     public R<UploadFileVo> upload(@RequestParam("file") MultipartFile multipartFile) {
